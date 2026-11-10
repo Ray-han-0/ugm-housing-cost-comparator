@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Peta Interaktif Kelayakan Hunian Mahasiswa UGM</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    #header { background: #0B2545; color: #FFFFFF; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+    #header h1 { margin: 0; font-size: 18px; font-weight: 600; }
+    #header p { margin: 4px 0 0; font-size: 12px; color: #B8860B; }
+    #map { height: calc(100vh - 65px); width: 100%; }
+    .legend { background: white; padding: 10px 14px; line-height: 20px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 12px; }
+    .legend-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <div>
+      <h1>Peta Interaktif Titik Kelayakan Kos Mahasiswa Jogja</h1>
+      <p>Departemen Ilmu Komputer dan Elektronika FMIPA UGM | True Housing Cost & OSRM Routing</p>
+    </div>
+    <div style="font-size: 13px;">Total Evaluasi: 3 Kos</div>
+  </div>
+  <div id="map"></div>
+
+  <script>
+    var map = L.map('map').setView([-7.768, 110.378], 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> kontributor'
+    }).addTo(map);
+
+    var clusters = [{"name": "Klaster Teknik", "lat": -7.7667, "lon": 110.3725, "desc": "Fakultas Teknik UGM (Jl. Grafika No. 2)"}, {"name": "Klaster Vokasi", "lat": -7.7745, "lon": 110.3745, "desc": "Sekolah Vokasi UGM (Sekip Unit II)"}, {"name": "Klaster FEB", "lat": -7.7712, "lon": 110.3789, "desc": "Fakultas Ekonomika dan Bisnis UGM (Jl. Sosio Humaniora)"}, {"name": "Klaster MIPA & Biologi", "lat": -7.7685, "lon": 110.3752, "desc": "FMIPA dan Fakultas Biologi UGM (Sekip Utara)"}];
+    clusters.forEach(function(c) {
+      var marker = L.circleMarker([c.lat, c.lon], {
+        radius: 9,
+        fillColor: '#0B2545',
+        color: '#B8860B',
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.95
+      }).addTo(map);
+      marker.bindPopup("<b>" + c.name + "</b><br/>" + c.desc);
+    });
+
+    var kosList = [{"name": "KOST PUTRI POGUNG DALANGAN SLEMAN", "lat": -7.7592, "lon": 110.3731, "color": "#0284C7", "score": 77.3, "popup": "<b>KOST PUTRI POGUNG DALANGAN SLEMAN</b><br/>Alamat: Pogung. Sleman/Yogyakarta<br/>Sewa Iklan: Rp 1.300.000/bln<br/><b>Biaya Riil: Rp 1.628.949/bln</b> (+25.3%)<br/>Fasilitas: AC. KM Dalam. <br/>Jarak ke Kampus: 1.05 km<br/><b>Skor Kelayakan: 77.3%</b>"}, {"name": "KOS PUTRA SEKIP UGM", "lat": -7.768, "lon": 110.3745, "color": "#0284C7", "score": 75.1, "popup": "<b>KOS PUTRA SEKIP UGM</b><br/>Alamat: Sekip. Sleman/Yogyakarta<br/>Sewa Iklan: Rp 850.000/bln<br/><b>Biaya Riil: Rp 850.000/bln</b> (+0.0%)<br/>Fasilitas: Wifi<br/>Jarak ke Kampus: 0.33 km<br/><b>Skor Kelayakan: 75.1%</b>"}, {"name": "PAVILIUN MAHASISWA KARANGMALANG", "lat": -7.7735, "lon": 110.385, "color": "#0284C7", "score": 73.1, "popup": "<b>PAVILIUN MAHASISWA KARANGMALANG</b><br/>Alamat: Karangmalang. Sleman/Yogyakarta<br/>Sewa Iklan: Rp 1.500.000/bln<br/><b>Biaya Riil: Rp 1.824.034/bln</b> (+21.6%)<br/>Fasilitas: AC. KM Dalam. Wifi<br/>Jarak ke Kampus: 1.96 km<br/><b>Skor Kelayakan: 73.1%</b>"}];
+    kosList.forEach(function(k) {
+      var marker = L.circleMarker([k.lat, k.lon], {
+        radius: 11,
+        fillColor: k.color,
+        color: '#FFFFFF',
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.9
+      }).addTo(map);
+      marker.bindPopup(k.popup);
+    });
+
+    var legend = L.control({ position: 'bottomright' });
+    legend.onAdd = function (map) {
+      var div = L.DomUtil.create('div', 'legend');
+      div.innerHTML += '<b>Legenda Titik:</b><br/>';
+      div.innerHTML += '<span class="legend-dot" style="background:#0B2545; border: 1px solid #B8860B;"></span> Gerbang Klaster UGM<br/>';
+      div.innerHTML += '<span class="legend-dot" style="background:#2E7D32;"></span> Sangat Layak (&ge; 80%)<br/>';
+      div.innerHTML += '<span class="legend-dot" style="background:#0284C7;"></span> Cukup Layak (65-79%)<br/>';
+      div.innerHTML += '<span class="legend-dot" style="background:#D97706;"></span> Kurang Efisien (&lt; 65%)<br/>';
+      return div;
+    };
+    legend.addTo(map);
+  </script>
+</body>
+</html>
